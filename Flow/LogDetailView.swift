@@ -110,6 +110,16 @@ struct LogDetailView: View {
                     }
                 }
             }
+            .onChange(of: refreshTrigger) {
+                refreshLogContent()
+                // Scroll to bottom after refresh
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    proxy.scrollTo("logContent", anchor: .bottom)
+                }
+            }
+            .onChange(of: clearTrigger) {
+                clearLogDisplay()
+            }
         }
         .onAppear {
             // Only load if we haven't loaded this file yet or if it's a different file
@@ -133,12 +143,6 @@ struct LogDetailView: View {
                 isCleared = false
                 loadLogContent()
             }
-        }
-        .onChange(of: refreshTrigger) {
-            refreshLogContent()
-        }
-        .onChange(of: clearTrigger) {
-            clearLogDisplay()
         }
     }
     
