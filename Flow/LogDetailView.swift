@@ -2,7 +2,6 @@
 
 import SwiftUI
 
-
 struct LogDetailView: View {
   let logFile: LogFile
   @State private var logContent: String = ""
