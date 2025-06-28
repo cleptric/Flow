@@ -3,8 +3,14 @@
 import SwiftData
 import SwiftUI
 
+extension Notification.Name {
+  static let openLogFile = Notification.Name("openLogFile")
+}
+
 @main
 struct FlowApp: App {
+  @StateObject private var recentFilesManager = RecentFilesManager.shared
+
   var sharedModelContainer: ModelContainer = {
     let schema = Schema([
       LogFile.self
@@ -23,5 +29,35 @@ struct FlowApp: App {
       ContentView()
     }
     .modelContainer(sharedModelContainer)
+    .commands {
+      CommandGroup(replacing: .newItem) {
+        Button("Open...") {
+          NotificationCenter.default.post(name: .openLogFile, object: nil)
+        }
+        .keyboardShortcut("O", modifiers: .command)
+
+        Divider()
+
+        Menu("Open Recent") {
+          ForEach(recentFilesManager.recentFiles) { recentFile in
+            Button(recentFile.name) {
+              NotificationCenter.default.post(
+                name: .openLogFile,
+                object: recentFile.path
+              )
+            }
+          }
+
+          if !recentFilesManager.recentFiles.isEmpty {
+            Divider()
+          }
+
+          Button("Clear Menu") {
+            recentFilesManager.clearRecentFiles()
+          }
+          .disabled(recentFilesManager.recentFiles.isEmpty)
+        }
+      }
+    }
   }
 }

@@ -131,6 +131,13 @@ struct ContentView: View {
       }
     }
     .navigationTitle("")
+    .onReceive(NotificationCenter.default.publisher(for: .openLogFile)) { notification in
+      if let filePath = notification.object as? String {
+        openLogFile(at: filePath)
+      } else {
+        addLogFile()
+      }
+    }
   }
 
   private func addLogFile() {
@@ -138,7 +145,22 @@ struct ContentView: View {
       let newLogFile = LogFile(filePath: filePath)
       modelContext.insert(newLogFile)
       selectedLogFile = newLogFile
+      RecentFilesManager.shared.addRecentFile(filePath)
     }
+  }
+
+  private func openLogFile(at filePath: String) {
+    // Check if file already exists in the list
+    if let existingFile = logFiles.first(where: { $0.filePath == filePath }) {
+      selectedLogFile = existingFile
+      return
+    }
+
+    // Add new log file
+    let newLogFile = LogFile(filePath: filePath)
+    modelContext.insert(newLogFile)
+    selectedLogFile = newLogFile
+    RecentFilesManager.shared.addRecentFile(filePath)
   }
 
   private func deleteLogFiles(offsets: IndexSet) {
