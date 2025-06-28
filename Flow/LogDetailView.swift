@@ -73,7 +73,7 @@ struct LogDetailView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
           } else {
             if logContent.isEmpty {
-              Text("Log file is empty or loading...")
+              Text("Log file is empty...")
                 .font(.system(.body, design: .monospaced))
                 .textSelection(.enabled)
                 .frame(maxWidth: .infinity, alignment: .leading)
