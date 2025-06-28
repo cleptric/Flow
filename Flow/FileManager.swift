@@ -11,7 +11,6 @@ class LogFileManager: ObservableObject {
   func selectLogFile() -> String? {
     let openPanel = NSOpenPanel()
     openPanel.title = "Select Log File"
-    openPanel.showsResizeIndicator = true
     openPanel.showsHiddenFiles = false
     openPanel.canChooseDirectories = false
     openPanel.canCreateDirectories = false
