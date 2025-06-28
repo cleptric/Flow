@@ -5,6 +5,7 @@ import SwiftUI
 
 extension Notification.Name {
   static let openLogFile = Notification.Name("openLogFile")
+  static let revealInFinder = Notification.Name("revealInFinder")
 }
 
 @main
@@ -57,6 +58,13 @@ struct FlowApp: App {
           }
           .disabled(recentFilesManager.recentFiles.isEmpty)
         }
+
+        Divider()
+
+        Button("Reveal in Finder") {
+          NotificationCenter.default.post(name: .revealInFinder, object: nil)
+        }
+        .keyboardShortcut("R", modifiers: .command)
       }
     }
   }

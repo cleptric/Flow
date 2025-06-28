@@ -138,6 +138,9 @@ struct ContentView: View {
         addLogFile()
       }
     }
+    .onReceive(NotificationCenter.default.publisher(for: .revealInFinder)) { _ in
+      revealInFinder()
+    }
   }
 
   private func addLogFile() {
@@ -201,6 +204,13 @@ struct ContentView: View {
 
   private func clearCurrentLog() {
     clearTrigger.toggle()
+  }
+
+  private func revealInFinder() {
+    guard let selectedLogFile = selectedLogFile else { return }
+
+    let url = URL(fileURLWithPath: selectedLogFile.filePath)
+    NSWorkspace.shared.activateFileViewerSelecting([url])
   }
 }
 

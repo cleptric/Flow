@@ -2,6 +2,7 @@
 
 import SwiftUI
 
+
 struct LogDetailView: View {
   let logFile: LogFile
   @State private var logContent: String = ""
@@ -279,6 +280,11 @@ struct LogDetailView: View {
       isCleared = false
       loadLogContent()
     }
+  }
+
+  private func revealInFinder() {
+    let url = URL(fileURLWithPath: logFile.filePath)
+    NSWorkspace.shared.activateFileViewerSelecting([url])
   }
 
 }
