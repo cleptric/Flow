@@ -13,6 +13,24 @@ struct ContentView: View {
   @State private var refreshTrigger: Bool = false
   @State private var clearTrigger: Bool = false
 
+  private func displayPath(_ path: String) -> String {
+    let uid = getuid()
+    guard let pw = getpwuid(uid) else {
+      return path
+    }
+
+    guard let homeDir = pw.pointee.pw_dir else {
+      return path
+    }
+
+    let homeDirectory = String(cString: homeDir)
+    if path.hasPrefix(homeDirectory) {
+      return path.replacingOccurrences(of: homeDirectory, with: "~")
+    }
+
+    return path
+  }
+
   var body: some View {
     NavigationSplitView {
       List {
@@ -33,7 +51,7 @@ struct ContentView: View {
                     .help("Permission required - click to re-add file")
                 }
               }
-              Text(logFile.filePath)
+              Text(displayPath(logFile.filePath))
                 .font(.caption)
                 .foregroundColor(.secondary)
                 .lineLimit(1)
@@ -86,7 +104,7 @@ struct ContentView: View {
           VStack(alignment: .leading, spacing: 2) {
             Text(selectedLogFile.fileName)
               .font(.headline)
-            Text(selectedLogFile.filePath)
+            Text(displayPath(selectedLogFile.filePath))
               .font(.caption)
               .foregroundColor(.secondary)
           }
