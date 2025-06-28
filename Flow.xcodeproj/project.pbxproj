@@ -24,7 +24,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		F5A9CF2A2E0E108700B02629 /* Flow.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Flow.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F5A9CF2A2E0E108700B02629 /* Flow Log Viewer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Flow Log Viewer.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		F5A9CF3A2E0E108900B02629 /* FlowTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FlowTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F5A9CF442E0E108900B02629 /* FlowUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FlowUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -85,7 +85,7 @@
 		F5A9CF2B2E0E108700B02629 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				F5A9CF2A2E0E108700B02629 /* Flow.app */,
+				F5A9CF2A2E0E108700B02629 /* Flow Log Viewer.app */,
 				F5A9CF3A2E0E108900B02629 /* FlowTests.xctest */,
 				F5A9CF442E0E108900B02629 /* FlowUITests.xctest */,
 			);
@@ -95,9 +95,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		F5A9CF292E0E108700B02629 /* Flow */ = {
+		F5A9CF292E0E108700B02629 /* Flow Log Viewer */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = F5A9CF4E2E0E108900B02629 /* Build configuration list for PBXNativeTarget "Flow" */;
+			buildConfigurationList = F5A9CF4E2E0E108900B02629 /* Build configuration list for PBXNativeTarget "Flow Log Viewer" */;
 			buildPhases = (
 				F5A9CF262E0E108700B02629 /* Sources */,
 				F5A9CF272E0E108700B02629 /* Frameworks */,
@@ -110,11 +110,11 @@
 			fileSystemSynchronizedGroups = (
 				F5A9CF2C2E0E108700B02629 /* Flow */,
 			);
-			name = Flow;
+			name = "Flow Log Viewer";
 			packageProductDependencies = (
 			);
 			productName = Flow;
-			productReference = F5A9CF2A2E0E108700B02629 /* Flow.app */;
+			productReference = F5A9CF2A2E0E108700B02629 /* Flow Log Viewer.app */;
 			productType = "com.apple.product-type.application";
 		};
 		F5A9CF392E0E108900B02629 /* FlowTests */ = {
@@ -200,7 +200,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				F5A9CF292E0E108700B02629 /* Flow */,
+				F5A9CF292E0E108700B02629 /* Flow Log Viewer */,
 				F5A9CF392E0E108900B02629 /* FlowTests */,
 				F5A9CF432E0E108900B02629 /* FlowUITests */,
 			);
@@ -258,12 +258,12 @@
 /* Begin PBXTargetDependency section */
 		F5A9CF3C2E0E108900B02629 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = F5A9CF292E0E108700B02629 /* Flow */;
+			target = F5A9CF292E0E108700B02629 /* Flow Log Viewer */;
 			targetProxy = F5A9CF3B2E0E108900B02629 /* PBXContainerItemProxy */;
 		};
 		F5A9CF462E0E108900B02629 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = F5A9CF292E0E108700B02629 /* Flow */;
+			target = F5A9CF292E0E108700B02629 /* Flow Log Viewer */;
 			targetProxy = F5A9CF452E0E108900B02629 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -398,7 +398,7 @@
 				CODE_SIGN_ENTITLEMENTS = Flow/Flow.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 9Z9SLCMULT;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
@@ -429,7 +429,7 @@
 				CODE_SIGN_ENTITLEMENTS = Flow/Flow.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 9Z9SLCMULT;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
@@ -531,7 +531,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		F5A9CF4E2E0E108900B02629 /* Build configuration list for PBXNativeTarget "Flow" */ = {
+		F5A9CF4E2E0E108900B02629 /* Build configuration list for PBXNativeTarget "Flow Log Viewer" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F5A9CF4F2E0E108900B02629 /* Debug */,
