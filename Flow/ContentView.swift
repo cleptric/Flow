@@ -95,11 +95,11 @@ struct ContentView: View {
         )
         .id(selectedLogFile.filePath)
       } else {
-          ContentUnavailableView(
-            "No Log File Selected",
-            systemImage: "text.page.badge.magnifyingglass",
-            description: Text("Select a log file from the sidebar or add a new one")
-          )
+        ContentUnavailableView(
+          "No Log File Selected",
+          systemImage: "text.page.badge.magnifyingglass",
+          description: Text("Select a log file from the sidebar or add a new one")
+        )
       }
     }
     .toolbar {

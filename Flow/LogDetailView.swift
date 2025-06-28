@@ -4,13 +4,14 @@ import SwiftUI
 
 struct LogDetailView: View {
   let logFile: LogFile
-  @State private var logContent: String = ""
   @State private var hasError: Bool = false
   @State private var errorMessage: String = ""
   @State private var isCleared: Bool = false
   @State private var isLoading: Bool = false
   @State private var lastLoadedPath: String = ""
   @State private var isLoadingMore: Bool = false
+  @State private var lastReadOffset: Int64 = 0
+  @State private var logLines: [String] = []
   @StateObject private var fileManager = LogFileManager.shared
   @StateObject private var fileMonitor = FileMonitor()
 
@@ -24,9 +25,12 @@ struct LogDetailView: View {
       return ""
     }
 
-    guard !searchText.isEmpty else { return logContent }
-    let lines = logContent.components(separatedBy: .newlines)
-    let filteredLines = lines.filter { $0.localizedCaseInsensitiveContains(searchText) }
+    let linesToDisplay = logLines
+    guard !searchText.isEmpty else {
+      return linesToDisplay.joined(separator: "\n")
+    }
+
+    let filteredLines = linesToDisplay.filter { $0.localizedCaseInsensitiveContains(searchText) }
 
     // Limit search results to prevent UI lag
     let maxSearchResults = 500
@@ -72,7 +76,7 @@ struct LogDetailView: View {
             .padding()
             .frame(maxWidth: .infinity, alignment: .leading)
           } else {
-            if logContent.isEmpty {
+            if logLines.isEmpty {
               Text("Log file is empty...")
                 .font(.system(.body, design: .monospaced))
                 .textSelection(.enabled)
@@ -103,7 +107,7 @@ struct LogDetailView: View {
           proxy.scrollTo("logContent", anchor: .bottom)
         }
       }
-      .onChange(of: logContent) {
+      .onChange(of: logLines) {
         if isAutoScrollEnabled && !hasError && !isCleared && !isSearching {
           DispatchQueue.main.async {
             proxy.scrollTo("logContent", anchor: .bottom)
@@ -161,101 +165,66 @@ struct LogDetailView: View {
         let fileSize =
           try FileManager.default.attributesOfItem(atPath: logFile.filePath)[.size] as? Int64 ?? 0
 
-        // First, read just the last few lines for immediate display
-        let quickBytes: Int64 = 8192  // 8KB for quick preview
-        let quickBytesToRead = min(fileSize, quickBytes)
+        // If this is an update and we have content, only read new content
+        if lastReadOffset > 0 && lastReadOffset < fileSize {
+          // Read only new content
+          try fileHandle.seek(toOffset: UInt64(lastReadOffset))
+          let newData = fileHandle.readData(ofLength: Int(fileSize - lastReadOffset))
 
-        if fileSize > quickBytes {
-          try fileHandle.seek(toOffset: UInt64(fileSize - quickBytesToRead))
-        }
+          if let newContent = String(data: newData, encoding: .utf8) {
+            let newLines = newContent.components(separatedBy: .newlines).filter { !$0.isEmpty }
 
-        let quickData = fileHandle.readData(ofLength: Int(quickBytesToRead))
-        var quickContent = String(data: quickData, encoding: .utf8) ?? ""
+            await MainActor.run {
+              logLines.append(contentsOf: newLines)
 
-        // If we started mid-line, remove the first incomplete line
-        if fileSize > quickBytes {
-          if let firstNewline = quickContent.firstIndex(of: "\n") {
-            quickContent = String(quickContent[quickContent.index(after: firstNewline)...])
+              // Keep only the last N lines to prevent memory issues
+              let maxLines = 1000
+              if logLines.count > maxLines {
+                logLines = Array(logLines.suffix(maxLines))
+              }
+
+              lastReadOffset = fileSize
+              isLoading = false
+            }
           }
-        }
+        } else {
+          // Initial load or reset - read from end
+          let bytesToRead: Int64 = min(fileSize, 256 * 1024)  // 256KB max
+          var startOffset: Int64 = 0
 
-        // Show just the last few lines immediately
-        let quickLines = quickContent.components(separatedBy: .newlines)
-        let previewLines = Array(quickLines.suffix(50))  // Show last 50 lines immediately
-        let previewContent = previewLines.joined(separator: "\n")
+          if fileSize > bytesToRead {
+            startOffset = fileSize - bytesToRead
+            try fileHandle.seek(toOffset: UInt64(startOffset))
+          }
 
-        await MainActor.run {
-          logContent = previewContent
-          hasError = false
-          errorMessage = ""
-          isLoading = false
-        }
+          let data = fileHandle.readData(ofLength: Int(bytesToRead))
+          var content = String(data: data, encoding: .utf8) ?? ""
 
-        // Now load more content in the background if the file is larger
-        if fileSize > quickBytes {
-          loadMoreContent()
+          // If we started mid-line, remove the first incomplete line
+          if startOffset > 0 {
+            if let firstNewline = content.firstIndex(of: "\n") {
+              content = String(content[content.index(after: firstNewline)...])
+            }
+          }
+
+          let lines = content.components(separatedBy: .newlines).filter { !$0.isEmpty }
+
+          await MainActor.run {
+            logLines = Array(lines.suffix(300))  // Show last 300 lines
+            lastReadOffset = fileSize
+            hasError = false
+            errorMessage = ""
+            isLoading = false
+          }
         }
 
       } catch {
         await MainActor.run {
           hasError = true
           errorMessage = error.localizedDescription
-          logContent = ""
+          logLines = []
+          lastReadOffset = 0
           isLoading = false
-        }
-      }
-    }
-  }
-
-  private func loadMoreContent() {
-    guard !isLoadingMore else { return }
-
-    isLoadingMore = true
-
-    Task {
-      do {
-        let url = URL(fileURLWithPath: logFile.filePath)
-        let fileHandle = try FileHandle(forReadingFrom: url)
-        defer { fileHandle.closeFile() }
-
-        // Get file size
-        let fileSize =
-          try FileManager.default.attributesOfItem(atPath: logFile.filePath)[.size] as? Int64 ?? 0
-
-        // Read more content (up to 256KB)
-        let maxBytes: Int64 = 256 * 1024
-        let bytesToRead = min(fileSize, maxBytes)
-
-        if fileSize > maxBytes {
-          try fileHandle.seek(toOffset: UInt64(fileSize - bytesToRead))
-        }
-
-        let data = fileHandle.readData(ofLength: Int(bytesToRead))
-        var content = String(data: data, encoding: .utf8) ?? ""
-
-        // If we started mid-line, remove the first incomplete line
-        if fileSize > maxBytes {
-          if let firstNewline = content.firstIndex(of: "\n") {
-            content = String(content[content.index(after: firstNewline)...])
-          }
-        }
-
-        // Limit to manageable number of lines
-        let lines = content.components(separatedBy: .newlines)
-        let maxDisplayLines = 300
-        if lines.count > maxDisplayLines {
-          let startIndex = lines.count - maxDisplayLines
-          content = lines[startIndex...].joined(separator: "\n")
-        }
-
-        await MainActor.run {
-          logContent = content
-          isLoadingMore = false
-        }
-
-      } catch {
-        await MainActor.run {
-          isLoadingMore = false
         }
       }
     }
@@ -265,11 +234,16 @@ struct LogDetailView: View {
     isCleared = true
     hasError = false
     errorMessage = ""
+    logLines = []
+    lastReadOffset = 0
   }
 
   func refreshLogContent() {
     if logFile.accessSecurityScopedResource() {
       isCleared = false
+      // Reset to reload all content
+      lastReadOffset = 0
+      logLines = []
       loadLogContent()
     }
   }
@@ -277,6 +251,8 @@ struct LogDetailView: View {
   private func retryLoadContent() {
     if logFile.accessSecurityScopedResource() {
       isCleared = false
+      lastReadOffset = 0
+      logLines = []
       loadLogContent()
     }
   }
